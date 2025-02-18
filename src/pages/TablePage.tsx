@@ -234,7 +234,7 @@ export default function TablePage() {
               }}>
                 {username.charAt(0).toUpperCase()}
               </Avatar>
-              <span className={`text-[#0288d1] font-medium`}>{username}</span>
+              <span className={`text-white font-medium`}>{username}</span>
               <MuiButton
                 label="Logout"
                 onClick={handleLogout}
