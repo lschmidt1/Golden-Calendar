@@ -228,20 +228,20 @@ export default function TablePage() {
             <div className="flex items-center gap-4">
               <Avatar sx={{ 
                 bgcolor: 'white',
-                color: '#2F54FF',
+                color: '#0288d1',
                 width: 32, 
                 height: 32 
               }}>
                 {username.charAt(0).toUpperCase()}
               </Avatar>
-              <span className={`text-textLight font-medium`}>{username}</span>
+              <span className={`text-[#0288d1] font-medium`}>{username}</span>
               <MuiButton
                 label="Logout"
                 onClick={handleLogout}
                 startIcon={<LogOut size={18} />}
                 color="inherit"
                 sx={{ 
-                  color: '#2F54FF',
+                  color: '#0288d1',
                   bgcolor: 'white',
                   '&:hover': {
                     bgcolor: 'white',
