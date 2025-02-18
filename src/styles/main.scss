@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+// Tailwind
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Abstracts
+@import 'abstracts/variables';
+@import 'abstracts/mixins';
+@import 'abstracts/functions';
+
+// Base styles
+@import 'base/reset';
+@import 'base/typography';
+@import 'base/utilities';
+
+// Components
+@import 'components/buttons';
+@import 'components/forms';
+@import 'components/cards';
+@import 'components/tables';
+
+// Layout
+@import 'layout/sidebar';
+@import 'layout/header';
+
+// Your custom Sass variables
+$sidebar-width: 250px;
+
+// Colors
+$primary-color: #a3fcf4;
+$secondary-color: #39e6d3;
+$text-dark: #000000;
+$text-light: #ffffff;
+$background-light: #f0f0f0;
+$background-dark: #202124;
+
+
+// Custom Sass mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Your component styles using Sass and Tailwind
+.app-container {
+  @apply w-full min-h-screen flex;
+}
+
+
+.main-content {
+  @apply flex-1 p-5;
+  margin-left: $sidebar-width;
+}
+
+.app-header {
+  @apply bg-white border-b border-gray-200 p-5;
+  margin-left: $sidebar-width;
+} 
