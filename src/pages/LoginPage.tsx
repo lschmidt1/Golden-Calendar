@@ -21,7 +21,7 @@ export default function LoginPage() {
       {/* Header with Kenvue Logo */}
       <div className="w-full bg-secondary py-2 shadow-md">
         <div className="container mx-auto flex justify-start items-center px-4">
-          <img src="/images/kenvue-logo.png" alt="Kenvue" className="h-9" />
+          <img src="images/kenvue-logo.png" alt="Kenvue" className="h-9" />
         </div>
       </div>
 
