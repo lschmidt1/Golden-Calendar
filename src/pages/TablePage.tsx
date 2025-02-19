@@ -321,9 +321,24 @@ export default function TablePage() {
       return row.cells[searchColumn].toLowerCase().includes(searchTerm.toLowerCase());
     });
   
-    const startResizing = useCallback((index: number, startX: number) => {
-      setResizing({ index, startX });
-    }, []);
+    const startResizing = useCallback((index: number, e: React.MouseEvent, group?: HeaderGroup) => {
+      let actualIndex = index;
+      
+      if (activeTab !== 0 && group) {
+        const headers = data.headers as GroupedHeaders;
+        let columnCount = 0;
+        
+        for (const key in headers) {
+          if (headers[key] === group) {
+            actualIndex = columnCount + index;
+            break;
+          }
+          columnCount += headers[key].columns.length;
+        }
+      }
+      
+      setResizing({ index: actualIndex, startX: e.clientX });
+    }, [activeTab, data.headers]);
   
     const stopResizing = useCallback(() => {
       setResizing(null);
@@ -592,7 +607,7 @@ export default function TablePage() {
                                 </div>
                                 <div
                                   className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
-                                  onMouseDown={(e) => startResizing(index, e.clientX)}
+                                  onMouseDown={(e) => startResizing(index, e, undefined)}
                                   style={{
                                     transform: 'translateX(1px)',
                                   }}
@@ -673,6 +688,13 @@ export default function TablePage() {
                                         onClick={(e) => e.stopPropagation()}
                                       />
                                     )}
+                                    <div
+                                      className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
+                                      onMouseDown={(e) => startResizing(columnIndex, e, group)}
+                                      style={{
+                                        transform: 'translateX(1px)',
+                                      }}
+                                    />
                                   </th>
                                 ))
                               )}
