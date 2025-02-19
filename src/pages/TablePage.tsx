@@ -241,6 +241,7 @@ export default function TablePage() {
                 startIcon={<LogOut size={18} />}
                 color="inherit"
                 sx={{ 
+                  marginLeft: '3rem',
                   color: '#0288d1',
                   bgcolor: 'white',
                   '&:hover': {
