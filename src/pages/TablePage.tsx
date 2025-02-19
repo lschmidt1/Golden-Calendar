@@ -163,14 +163,14 @@ export default function TablePage() {
         // Ensure minimum width and add padding
         return Math.max(120, width + extraPadding + firstColumnPadding);
       });
-    }, [data.headers, data.rows, activeTab]);
+    }, [data.headers, activeTab]);
   
     const [columnWidths, setColumnWidths] = useState<number[]>(() => calculateInitialColumnWidths());
   
     useEffect(() => {
       const newWidths = calculateInitialColumnWidths();
       setColumnWidths(newWidths);
-    }, [activeTab, data.rows.length, calculateInitialColumnWidths]);
+    }, [activeTab, calculateInitialColumnWidths]);
   
     const handleCellChange = (rowId: string, cellIndex: number, value: string) => {
       const rowIndex = data.rows.findIndex(row => row.id === rowId);
