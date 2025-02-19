@@ -28,24 +28,23 @@ export default function LoginPage() {
       {/* Login Content */}
       <div className={`flex-1 flex items-center justify-center ${
         isDarkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-gray-100 to-white'
-      } p-4`}>
+      } p-4 overflow-y-auto`}>
         <div className={`w-full max-w-2xl ${
           isDarkMode 
             ? 'bg-gray-800/50 border-gray-700/50' 
             : 'bg-white/50 border-gray-200/50'
-        } backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 border`}>
+        } backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 border my-4`}>
           <div className={`w-full h-12 flex items-center justify-center rounded-t-2xl ${
             isDarkMode ? 'bg-secondary' : 'bg-secondary'
           } shadow-lg relative z-10`}>
             <div className="text-textLight font-bold text-2xl">LOGIN</div>
           </div>
 
-          <div className={`w-full px-12 py-10 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-
-            <form className="space-y-8 max-w-md mx-auto" onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <label htmlFor="username" className={`block w-24 text-right ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
+          <div className={`w-full p-4 sm:p-6 md:p-8 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            <form className="space-y-4 sm:space-y-6 max-w-md mx-auto" onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="username" className={`sm:w-24 sm:text-right ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
                     Username
                   </label>
                   <input
@@ -63,8 +62,8 @@ export default function LoginPage() {
                       }`}
                   />
                 </div>
-                <div className="flex items-center gap-4">
-                  <label htmlFor="password" className={`block w-24 text-right ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <label htmlFor="password" className={`sm:w-24 sm:text-right ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
                     Password
                   </label>
                   <input
@@ -84,7 +83,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex justify-center mt-10">
+              <div className="flex justify-center mt-6 sm:mt-8">
                 <button
                   type="submit"
                   className={`px-10 py-2.5 rounded-full text-white font-medium 
@@ -97,7 +96,7 @@ export default function LoginPage() {
               </div>
             </form>
 
-            <div className="flex justify-center gap-3 mt-12 text-sm">
+            <div className="flex justify-center gap-3 mt-8 sm:mt-10 text-sm">
               <a href="#" className={`${isDarkMode ? 'text-primary hover:text-primary/80' : 'text-secondary hover:text-secondary/80'} transition-colors duration-200`}>
                 Legal Notice
               </a>
@@ -107,7 +106,7 @@ export default function LoginPage() {
               </a>
             </div>
 
-            <div className={`text-center mt-6 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <div className={`text-center mt-4 sm:mt-6 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Kenvue Brands LLC
             </div>
           </div>

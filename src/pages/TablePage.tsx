@@ -220,7 +220,7 @@ export default function TablePage() {
     };
   
     return (
-      <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`overflow-hidden min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         {/* Header */}
         <div className="w-full bg-secondary py-2 shadow-md">
           <div className="container mx-auto flex justify-between items-center px-4">
@@ -254,7 +254,7 @@ export default function TablePage() {
         </div>
 
         <div 
-          className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+          className={` ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
           onMouseMove={handleResize}
           onMouseUp={stopResizing}
           onMouseLeave={stopResizing}
@@ -313,17 +313,22 @@ export default function TablePage() {
               </div>
     
               {/* Spreadsheet */}
-              <div className="overflow-x-auto" 
+              <div 
+                className="overflow-x-auto scrollbar-visible" 
                 style={{ 
                   width: '100%',
                   overflowX: 'scroll',
                   overflowY: 'visible',
-                  WebkitOverflowScrolling: 'touch'
+                  WebkitOverflowScrolling: 'touch',
+                  height: 'calc(100vh - 180px)', // Add fixed height
+                  display: 'flex',
+                  flexDirection: 'column'
                 }}
               >
                 <div style={{ 
                   minWidth: 'fit-content',
-                  width: 'max-content'
+                  width: 'max-content',
+                  flex: '1 0 auto' // Make content fill available space
                 }}>
                   <table style={{ 
                     borderCollapse: 'separate',
