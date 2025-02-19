@@ -750,11 +750,15 @@ export default function TablePage() {
                                       value={cell}
                                       onChange={(e) => handleCellChange(row.id, cellIndex, e.target.value)}
                                       className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
-                                        ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                        ${isDarkMode ? 'text-white [&>option]:bg-gray-800' : 'text-gray-900 [&>option]:bg-white'}`}
                                     >
-                                      <option value="">Select...</option>
+                                      <option value="" className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>Select...</option>
                                       {dropdownOptions.map((option: string, optIndex: number) => (
-                                        <option key={`${row.id}-${cellIndex}-${optIndex}`} value={option}>
+                                        <option 
+                                          key={`${row.id}-${cellIndex}-${optIndex}`} 
+                                          value={option}
+                                          className={isDarkMode ? 'bg-gray-800' : 'bg-white'}
+                                        >
                                           {option}
                                         </option>
                                       ))}
