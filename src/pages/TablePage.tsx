@@ -30,7 +30,7 @@ export default function TablePage() {
 
   const generalHeaders = [
     'Year', 'GBU', 'SQUAD', 'Franchise', 'Brand Family', 'Brand', 
-    'Platform (optional)', 'NPT', 'Customer', 'Calendar Type', 
+    'Platform (optional)', 'NPI', 'Customer', 'Calendar Type', 
     'Activation', 'Activation Type', 'Placement', 'Tactic Detail',
     'Status', 'Start Date', 'End Date'
   ];
@@ -42,7 +42,7 @@ export default function TablePage() {
     },
     consumerPromotions: {
       title: 'Consumer Promotions',
-      columns: ['MA_CP_Investment', 'MA_CP_Quantity']
+      columns: ['MA_CP_GTS', 'MA_CP_Investment', 'MA_CP_Quantity']
     },
     hcp: {
       title: 'HCP',

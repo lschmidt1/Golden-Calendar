@@ -1,7 +1,7 @@
 // Constants for column counts
 export const GENERAL_COLUMNS_END = 17;  // General tab columns (0-16)
-export const MENTAL_COLUMNS_COUNT = 8;  // Mental Availability columns (17-24)
-export const PHYSICAL_COLUMNS_COUNT = 5; // Physical Availability columns (25-29)
+export const MENTAL_COLUMNS_COUNT = 9;  // Mental Availability columns (17-25)
+export const PHYSICAL_COLUMNS_COUNT = 5; // Physical Availability columns (26-30)
 export const TOTAL_COLUMNS = GENERAL_COLUMNS_END + MENTAL_COLUMNS_COUNT + PHYSICAL_COLUMNS_COUNT; // Total 30 columns
 
 export const mockData = {
@@ -60,9 +60,10 @@ export const generateMockRows = () => {
         startDate.toISOString().split('T')[0],
         endDate.toISOString().split('T')[0],
 
-        // Mental Availability tab columns (17-24)
+        // Mental Availability tab columns (17-25)
         franchise,                // MA_Media_GTS
         category,                // MA_Media_Investment
+        franchise,                // MA_CP_GTS
         brand,                   // MA_CP_Investment
         String(Math.floor(Math.random() * 100000)),        // MA_CP_Quantity
         `${Math.floor(Math.random() * 100)}%`,      // MA_HCP_Sales Force Reach
@@ -70,7 +71,7 @@ export const generateMockRows = () => {
         `$${(Math.random() * 1000000).toFixed(2)}`,   // MA_HCP_Investment
         String(Math.floor(Math.random() * 100000)),        // MA_NS_Quantity
 
-        // Physical Availability tab columns (25-29)
+        // Physical Availability tab columns (26-30)
         franchise,               // PA_Display_GTS
         String(Math.floor(Math.random() * 100000)),        // PA_Display_Quantity
         category,                // PA_PP_GTS
