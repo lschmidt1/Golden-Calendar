@@ -1,3 +1,9 @@
+// Constants for column counts
+export const GENERAL_COLUMNS_END = 17;  // General tab columns (0-16)
+export const MENTAL_COLUMNS_COUNT = 8;  // Mental Availability columns (17-24)
+export const PHYSICAL_COLUMNS_COUNT = 5; // Physical Availability columns (25-29)
+export const TOTAL_COLUMNS = GENERAL_COLUMNS_END + MENTAL_COLUMNS_COUNT + PHYSICAL_COLUMNS_COUNT; // Total 30 columns
+
 export const mockData = {
   gbu: ['SELF CARE', 'SKIN HEALTH & BEAUTY', 'TEHA', 'ALL'],
   squad: ['BABY CARE', 'BODY CARE', 'DIGESTIVE HEALTH', 'FACE CARE', 'HAIR CARE', 'ORAL CARE', 'PAIN + COLD', 'SUN & MAKE UP', 'WOUND', 'ZARBEES', 'ALL'],
@@ -13,6 +19,11 @@ export const mockData = {
   tacticDetail: ['Submitted', 'Proposed', 'In Progress', 'Completed', 'Cancelled']
 };
 
+// Helper function to generate random data
+const randomFromArray = <T>(arr: T[]): T => {
+  return arr[Math.floor(Math.random() * arr.length)];
+};
+
 export const generateMockRows = () => {
   const rows = [];
   const startDate = new Date('2024-01-01');
@@ -21,27 +32,50 @@ export const generateMockRows = () => {
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + Math.floor(Math.random() * 14) + 7);
     
+    // Generate shared values to maintain consistency across tabs
+    const franchise = randomFromArray(mockData.franchise);
+    const category = randomFromArray(mockData.squad);
+    const brand = randomFromArray(mockData.brand);
+    
     rows.push({
-      id: String(i + 1),
+      id: `row-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,
       selected: false,
       cells: [
+        // General tab columns (0-16)
         '2025',
-        mockData.gbu[Math.floor(Math.random() * mockData.gbu.length)],
-        mockData.squad[Math.floor(Math.random() * mockData.squad.length)],
-        mockData.franchise[Math.floor(Math.random() * mockData.franchise.length)],
-        mockData.brandFamily[Math.floor(Math.random() * mockData.brandFamily.length)],
-        mockData.brand[Math.floor(Math.random() * mockData.brand.length)],
-        mockData.platform[Math.floor(Math.random() * mockData.platform.length)],
+        randomFromArray(mockData.gbu),
+        randomFromArray(mockData.squad),
+        franchise,
+        randomFromArray(mockData.brandFamily),
+        brand,
+        randomFromArray(mockData.platform),
         'Yes',
-        mockData.customer[Math.floor(Math.random() * mockData.customer.length)],
-        mockData.calendarType[Math.floor(Math.random() * mockData.calendarType.length)],
-        mockData.activation[Math.floor(Math.random() * mockData.activation.length)],
-        mockData.activationType[Math.floor(Math.random() * mockData.activationType.length)],
-        mockData.placement[Math.floor(Math.random() * mockData.placement.length)],
-        mockData.tacticDetail[Math.floor(Math.random() * mockData.tacticDetail.length)],
+        randomFromArray(mockData.customer),
+        randomFromArray(mockData.calendarType),
+        randomFromArray(mockData.activation),
+        randomFromArray(mockData.activationType),
+        randomFromArray(mockData.placement),
+        randomFromArray(mockData.tacticDetail),
         'Active',
         startDate.toISOString().split('T')[0],
-        endDate.toISOString().split('T')[0]
+        endDate.toISOString().split('T')[0],
+
+        // Mental Availability tab columns (17-24)
+        franchise,                // MA_Media_GTS
+        category,                // MA_Media_Investment
+        brand,                   // MA_CP_Investment
+        String(Math.floor(Math.random() * 100000)),        // MA_CP_Quantity
+        `${Math.floor(Math.random() * 100)}%`,      // MA_HCP_Sales Force Reach
+        `${Math.floor(Math.random() * 100)}%`,      // MA_HCP_Non Personal Reach
+        `$${(Math.random() * 1000000).toFixed(2)}`,   // MA_HCP_Investment
+        String(Math.floor(Math.random() * 100000)),        // MA_NS_Quantity
+
+        // Physical Availability tab columns (25-29)
+        franchise,               // PA_Display_GTS
+        String(Math.floor(Math.random() * 100000)),        // PA_Display_Quantity
+        category,                // PA_PP_GTS
+        brand,                   // PA_SM_GTS
+        String(Math.floor(Math.random() * 100000))         // PA_RS_Quantity
       ]
     });
     
@@ -49,4 +83,16 @@ export const generateMockRows = () => {
   }
   
   return rows;
+};
+
+// Add the generateSingleRow function
+export const generateSingleRow = () => {
+  // Create an array of empty strings with the correct length for all tabs
+  const emptyCells = Array(TOTAL_COLUMNS).fill('');
+  
+  return {
+    id: `row-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    selected: false,
+    cells: emptyCells
+  };
 };

@@ -5,8 +5,17 @@ export interface Row {
 }
 
 export interface SpreadsheetData {
-  headers: string[];
+  headers: string[] | GroupedHeaders;
   rows: Row[];
+}
+
+export interface HeaderGroup {
+  title: string;
+  columns: string[];
+}
+
+export interface GroupedHeaders {
+  [key: string]: HeaderGroup;
 }
 
 export type SortDirection = 'asc' | 'desc';
