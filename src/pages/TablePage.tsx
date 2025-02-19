@@ -396,11 +396,11 @@ export default function TablePage() {
       <div className={`overflow-hidden min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         {/* Header */}
         <div className="w-full bg-secondary py-2 shadow-md">
-          <div className="container mx-auto flex justify-between items-center px-4">
+          <div className="w-full mx-auto flex justify-between items-center px-4">
             <img src="/images/kenvue-logo.png" alt="Kenvue" className="h-9" />
             <div className="flex items-center gap-4">
               <Avatar sx={{ 
-                bgcolor: 'white',
+                bgcolor: 'white', 
                 color: '#0288d1',
                 width: 32, 
                 height: 32 
