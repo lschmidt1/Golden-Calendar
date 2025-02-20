@@ -194,6 +194,12 @@ export default function TablePage() {
     const addRow = () => {
       const newRow = generateSingleRow();
       setNewRowId(newRow.id);
+      
+      // Clear sort and search filters
+      setSortConfig(null);
+      setSearchColumn(null);
+      setSearchTerm('');
+      
       setData(prevData => ({
         ...prevData,
         rows: [newRow, ...prevData.rows]
@@ -397,7 +403,7 @@ export default function TablePage() {
         {/* Header */}
         <div className="w-full bg-secondary py-2 shadow-md">
           <div className="w-full mx-auto flex justify-between items-center px-4">
-            <img src="/images/kenvue-logo.png" alt="Kenvue" className="h-9" />
+            <img src="/images/kenvue-logo.png" alt="Kenvue" className="h-9 ml-5" />
             <div className="flex items-center gap-4">
               <Avatar sx={{ 
                 bgcolor: 'white', 
@@ -415,6 +421,7 @@ export default function TablePage() {
                 color="inherit"
                 sx={{ 
                   marginLeft: '3rem',
+                  marginRight: '3rem',
                   color: '#0288d1',
                   bgcolor: 'white',
                   '&:hover': {
