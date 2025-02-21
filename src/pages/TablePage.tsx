@@ -11,6 +11,7 @@ import { Avatar } from '@mui/material';
 import { LogOut } from 'lucide-react';
 import { Tabs, Tab, Box } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMediaQuery } from '@mui/material';
 
 interface HeaderGroup {
   title: string;
@@ -398,30 +399,33 @@ export default function TablePage() {
       }));
     }, [activeTab]);
   
+    const isMobile = useMediaQuery('(max-width: 768px)');
+  
     return (
       <div className={`overflow-hidden min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        {/* Header */}
+        {/* Header - Make it more compact on mobile */}
         <div className="w-full bg-secondary py-2 shadow-md">
           <div className="w-full mx-auto flex justify-between items-center px-4">
-            <img src="/images/kenvue-logo.png" alt="Kenvue" className="h-9 ml-5" />
-            <div className="flex items-center gap-4">
+            <img src="/images/kenvue-logo.png" alt="Kenvue" className="h-8 ml-2 md:h-9 md:ml-5" />
+            <div className="flex items-center gap-2 md:gap-4">
               <Avatar sx={{ 
                 bgcolor: 'white', 
                 color: '#0288d1',
-                width: 32, 
-                height: 32 
+                width: isMobile ? 24 : 32, 
+                height: isMobile ? 24 : 32 
               }}>
                 {username.charAt(0).toUpperCase()}
               </Avatar>
-              <span className={`text-white font-medium`}>{username}</span>
+              {!isMobile && <span className="text-white font-medium">{username}</span>}
               <MuiButton
-                label="Logout"
+                label={isMobile ? '' : "Logout"}
                 onClick={handleLogout}
-                startIcon={<LogOut size={18} />}
+                startIcon={<LogOut size={isMobile ? 16 : 18} />}
                 color="inherit"
                 sx={{ 
-                  marginLeft: '3rem',
-                  marginRight: '3rem',
+                  marginLeft: isMobile ? '1rem' : '3rem',
+                  marginRight: isMobile ? '1rem' : '3rem',
+                  minWidth: isMobile ? '40px' : 'auto',
                   color: '#0288d1',
                   bgcolor: 'white',
                   '&:hover': {
@@ -434,197 +438,219 @@ export default function TablePage() {
           </div>
         </div>
 
-        <div 
-          className={` ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-          onMouseMove={handleResize}
-          onMouseUp={stopResizing}
-          onMouseLeave={stopResizing}
-        >
-          <div className="mx-auto px-4 py-8">
-            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg`}>
-              {/* Header with buttons */}
-              <div className={`p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      Golden Calendar
-                    </h1>
-                    <MuiButton
-                      label="Add Row"
-                      onClick={addRow}
-                      startIcon={<Plus size={18} />}
-                      color="primary"
-                    />
-                    <MuiButton
-                      label="Delete Selected"
-                      onClick={removeSelectedRows}
-                      startIcon={<Trash2 size={18} />}
-                      color="error"
-                    />
-                    <MuiButton
-                      label={isDarkMode ? 'Light Mode' : 'Dark Mode'}
-                      onClick={toggleDarkMode}
-                      startIcon={isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-                      color="secondary"
-                    />
-                  </div>
-                  <div className="flex gap-4">
-                    <MuiButton
-                      label="Export"
-                      onClick={() => exportToCsv(data)}
-                      startIcon={<Download size={18} />}
-                      color="info"
-                      disabled
-                    />
-                    <MuiButton
-                      label="Import"
-                      component="label"
-                      startIcon={<Upload size={18} />}
-                      color="success"
-                      disabled
-                    >
-                      <input
-                        type="file"
-                        accept=".csv"
-                        hidden
-                      />
-                    </MuiButton>
-                  </div>
-                </div>
+        {isMobile ? (
+          // Mobile view
+          <div className={`p-4 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} h-[calc(100vh-64px)] overflow-y-auto`}>
+            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-4`}>
+              {/* Mobile action buttons */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <MuiButton
+                  label=""
+                  onClick={addRow}
+                  startIcon={<Plus size={16} />}
+                  color="primary"
+                  sx={{ minWidth: '40px' }}
+                />
+                <MuiButton
+                  label=""
+                  onClick={removeSelectedRows}
+                  startIcon={<Trash2 size={16} />}
+                  color="error"
+                  sx={{ minWidth: '40px' }}
+                />
+                <MuiButton
+                  label=""
+                  onClick={toggleDarkMode}
+                  startIcon={isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+                  color="secondary"
+                  sx={{ minWidth: '40px' }}
+                />
               </div>
 
-              {/* Move Tabs here */}
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs 
-                  value={activeTab} 
-                  onChange={handleTabChange}
-                  sx={{
-                    '& .MuiTab-root': {
-                      color: isDarkMode ? '#fff' : '#000',
-                      '&.Mui-selected': {
-                        color: '#0288d1',
-                      },
-                    },
-                    '& .MuiTabs-indicator': {
-                      backgroundColor: '#0288d1',
-                    },
-                  }}
-                >
-                  <Tab label="General" />
-                  <Tab label="Mental Availability" />
-                  <Tab label="Physical Availability" />
-                </Tabs>
-              </Box>
-
-              {/* Single table with different columns based on activeTab */}
-              <div className="overflow-x-auto scrollbar-visible" 
-                style={{ 
-                  width: '100%',
-                  overflowX: 'scroll',
-                  overflowY: 'visible',
-                  WebkitOverflowScrolling: 'touch',
-                  height: 'calc(100vh - 220px)',
-                  display: 'flex',
-                  flexDirection: 'column'
+              {/* Mobile tabs */}
+              <Tabs 
+                value={activeTab} 
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{
+                  '& .MuiTab-root': {
+                    fontSize: '0.875rem',
+                    minWidth: '120px',
+                  }
                 }}
               >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                    style={{ 
-                      minWidth: 'fit-content',
-                      width: 'max-content',
-                      flex: '1 0 auto'
+                <Tab label="General" />
+                <Tab label="Mental" />
+                <Tab label="Physical" />
+              </Tabs>
+
+              {/* Mobile card view of data */}
+              <div className="mt-4 space-y-4">
+                {filteredRows.map((row) => (
+                  <div 
+                    key={row.id}
+                    className={`p-4 rounded-lg border ${
+                      isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
+                    } ${row.id === newRowId ? 'ring-2 ring-blue-500' : ''}`}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <input
+                        type="checkbox"
+                        checked={row.selected}
+                        onChange={() => toggleRowSelection(row.id)}
+                        className="w-4 h-4 text-blue-600 rounded"
+                      />
+                      <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                        ID: {row.id.slice(0, 8)}...
+                      </span>
+                    </div>
+                    {row.cells.slice(
+                      activeTab === 0 ? 0 : 
+                      activeTab === 1 ? MENTAL_COLUMNS_START : 
+                      PHYSICAL_COLUMNS_START,
+                      activeTab === 0 ? GENERAL_COLUMNS_END :
+                      activeTab === 1 ? MENTAL_COLUMNS_END :
+                      PHYSICAL_COLUMNS_END
+                    ).map((cell, index) => {
+                      const header = getHeadersArray(data.headers)[index];
+                      return (
+                        <div key={index} className="py-2">
+                          <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            {header}
+                          </label>
+                          <input
+                            type="text"
+                            value={cell}
+                            onChange={(e) => handleCellChange(row.id, index, e.target.value)}
+                            className={`mt-1 w-full px-3 py-2 rounded-md border ${
+                              isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'
+                            }`}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div 
+            className={` ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+            onMouseMove={handleResize}
+            onMouseUp={stopResizing}
+            onMouseLeave={stopResizing}
+          >
+            <div className="mx-auto px-4 py-8">
+              <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg`}>
+                {/* Header with buttons */}
+                <div className={`p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                      <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Golden Calendar
+                      </h1>
+                      <MuiButton
+                        label="Add Row"
+                        onClick={addRow}
+                        startIcon={<Plus size={18} />}
+                        color="primary"
+                      />
+                      <MuiButton
+                        label="Delete Selected"
+                        onClick={removeSelectedRows}
+                        startIcon={<Trash2 size={18} />}
+                        color="error"
+                      />
+                      <MuiButton
+                        label={isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                        onClick={toggleDarkMode}
+                        startIcon={isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                        color="secondary"
+                      />
+                    </div>
+                    <div className="flex gap-4">
+                      <MuiButton
+                        label="Export"
+                        onClick={() => exportToCsv(data)}
+                        startIcon={<Download size={18} />}
+                        color="info"
+                        disabled
+                      />
+                      <MuiButton
+                        label="Import"
+                        component="label"
+                        startIcon={<Upload size={18} />}
+                        color="success"
+                        disabled
+                      >
+                        <input
+                          type="file"
+                          accept=".csv"
+                          hidden
+                        />
+                      </MuiButton>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Move Tabs here */}
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <Tabs 
+                    value={activeTab} 
+                    onChange={handleTabChange}
+                    sx={{
+                      '& .MuiTab-root': {
+                        color: isDarkMode ? '#fff' : '#000',
+                        '&.Mui-selected': {
+                          color: '#0288d1',
+                        },
+                      },
+                      '& .MuiTabs-indicator': {
+                        backgroundColor: '#0288d1',
+                      },
                     }}
                   >
-                    <table style={{ 
-                      borderCollapse: 'separate',
-                      borderSpacing: '2px 0',
-                      position: 'relative'
-                    }}>
-                      <thead>
-                        {activeTab === 0 ? (
-                          // Original header rendering for General tab
-                          <tr className={isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}>
-                            <th 
-                              className={`sticky left-0 z-20 px-4 py-3 ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}`}
-                              style={{ 
-                                borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
-                                position: 'relative',
-                                padding: '0',
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={allSelected}
-                                onChange={toggleSelectAll}
-                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                              />
-                            </th>
-                            {getHeadersArray(data.headers).map((header, index) => (
-                              <th
-                                key={index}
-                                className={`${index < 3 ? `sticky left-${index === 0 ? '12' : index === 1 ? '32' : '52'} z-10` : ''} 
-                                  ${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'}
-                                  cursor-pointer group relative`}
-                                style={{ 
-                                  width: `${columnWidths[index]}px`,
-                                  borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                  backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
-                                  position: 'relative',
-                                  padding: '0',
-                                }}
-                              >
-                                <div className="px-6 py-3 text-left text-sm font-semibold whitespace-nowrap h-full">
-                                  <div className="flex items-center gap-2">
-                                    <span onClick={() => handleSort(index)}>{header}</span>
-                                    {sortConfig?.column === (
-                                      activeTab === 0 ? index : 
-                                      activeTab === 1 ? index + MENTAL_COLUMNS_START : 
-                                      index + PHYSICAL_COLUMNS_START
-                                    ) && (
-                                      <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                    )}
-                                    <button
-                                      className="opacity-50 hover:opacity-100"
-                                      onClick={(e) => { e.stopPropagation(); handleSearch(index); }}
-                                    >
-                                      <Search size={16} />
-                                    </button>
-                                  </div>
-                                  {searchColumn === (
-                                    activeTab === 0 ? index : 
-                                    activeTab === 1 ? index + MENTAL_COLUMNS_START : 
-                                    index + PHYSICAL_COLUMNS_START
-                                  ) && (
-                                    <input
-                                      type="text"
-                                      value={searchTerm}
-                                      onChange={(e) => setSearchTerm(e.target.value)}
-                                      className={`mt-2 w-full px-2 py-1 rounded-md 
-                                        ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'}`}
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                  )}
-                                </div>
-                                <div
-                                  className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
-                                  onMouseDown={(e) => startResizing(index, e, undefined)}
-                                  style={{
-                                    transform: 'translateX(1px)',
-                                  }}
-                                />
-                              </th>
-                            ))}
-                          </tr>
-                        ) : (
-                          // Group header rendering for Mental and Physical Availability tabs
-                          <>
+                    <Tab label="General" />
+                    <Tab label="Mental Availability" />
+                    <Tab label="Physical Availability" />
+                  </Tabs>
+                </Box>
+
+                {/* Single table with different columns based on activeTab */}
+                <div className="overflow-x-auto scrollbar-visible" 
+                  style={{ 
+                    width: '100%',
+                    overflowX: 'scroll',
+                    overflowY: 'visible',
+                    WebkitOverflowScrolling: 'touch',
+                    height: 'calc(100vh - 220px)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeTab}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ 
+                        minWidth: 'fit-content',
+                        width: 'max-content',
+                        flex: '1 0 auto'
+                      }}
+                    >
+                      <table style={{ 
+                        borderCollapse: 'separate',
+                        borderSpacing: '2px 0',
+                        position: 'relative'
+                      }}>
+                        <thead>
+                          {activeTab === 0 ? (
+                            // Original header rendering for General tab
                             <tr className={isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}>
                               <th 
                                 className={`sticky left-0 z-20 px-4 py-3 ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}`}
@@ -634,7 +660,6 @@ export default function TablePage() {
                                   position: 'relative',
                                   padding: '0',
                                 }}
-                                rowSpan={2}
                               >
                                 <input
                                   type="checkbox"
@@ -643,49 +668,42 @@ export default function TablePage() {
                                   className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                                 />
                               </th>
-                              {Object.values(activeTab === 0 ? { general: { title: 'General', columns: data.headers as string[] } } : data.headers as GroupedHeaders).map((group: HeaderGroup) => (
+                              {getHeadersArray(data.headers).map((header, index) => (
                                 <th
-                                  key={group.title || 'general'}
-                                  colSpan={Array.isArray(group.columns) ? group.columns.length : 1}
-                                  className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
-                                    text-center border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                                  style={{
+                                  key={index}
+                                  className={`${index < 3 ? `sticky left-${index === 0 ? '12' : index === 1 ? '32' : '52'} z-10` : ''} 
+                                    ${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'}
+                                    cursor-pointer group relative`}
+                                  style={{ 
+                                    width: `${columnWidths[index]}px`,
+                                    borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
                                     backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
-                                    padding: '0.75rem',
+                                    position: 'relative',
+                                    padding: '0',
                                   }}
                                 >
-                                  {group.title || ''}
-                                </th>
-                              ))}
-                            </tr>
-                            <tr className={isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}>
-                              {Object.values(data.headers as GroupedHeaders).map((group: HeaderGroup) => 
-                                (group.columns || []).map((column: string, columnIndex: number) => (
-                                  <th
-                                    key={column}
-                                    className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
-                                      cursor-pointer group relative`}
-                                    style={{ 
-                                      width: `${columnWidths[columnIndex]}px`,
-                                      borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                      backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
-                                      position: 'relative',
-                                      padding: '0.75rem',
-                                    }}
-                                  >
+                                  <div className="px-6 py-3 text-left text-sm font-semibold whitespace-nowrap h-full">
                                     <div className="flex items-center gap-2">
-                                      <span onClick={() => handleSort(columnIndex, group)}>{column}</span>
-                                      {sortConfig?.column === getActualColumnIndex(columnIndex, group) && (
+                                      <span onClick={() => handleSort(index)}>{header}</span>
+                                      {sortConfig?.column === (
+                                        activeTab === 0 ? index : 
+                                        activeTab === 1 ? index + MENTAL_COLUMNS_START : 
+                                        index + PHYSICAL_COLUMNS_START
+                                      ) && (
                                         <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                                       )}
                                       <button
                                         className="opacity-50 hover:opacity-100"
-                                        onClick={() => handleSearch(columnIndex, group)}
+                                        onClick={(e) => { e.stopPropagation(); handleSearch(index); }}
                                       >
                                         <Search size={16} />
                                       </button>
                                     </div>
-                                    {searchColumn === getActualColumnIndex(columnIndex, group) && (
+                                    {searchColumn === (
+                                      activeTab === 0 ? index : 
+                                      activeTab === 1 ? index + MENTAL_COLUMNS_START : 
+                                      index + PHYSICAL_COLUMNS_START
+                                    ) && (
                                       <input
                                         type="text"
                                         value={searchTerm}
@@ -695,104 +713,189 @@ export default function TablePage() {
                                         onClick={(e) => e.stopPropagation()}
                                       />
                                     )}
-                                    <div
-                                      className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
-                                      onMouseDown={(e) => startResizing(columnIndex, e, group)}
-                                      style={{
-                                        transform: 'translateX(1px)',
-                                      }}
-                                    />
-                                  </th>
-                                ))
-                              )}
+                                  </div>
+                                  <div
+                                    className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
+                                    onMouseDown={(e) => startResizing(index, e, undefined)}
+                                    style={{
+                                      transform: 'translateX(1px)',
+                                    }}
+                                  />
+                                </th>
+                              ))}
                             </tr>
-                          </>
-                        )}
-                      </thead>
-                      <tbody>
-                        {filteredRows.map((row) => (
-                          <tr 
-                            key={row.id} 
-                            className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}
-                              ${row.id === newRowId ? 'bg-blue-50 dark:bg-blue-900/30' : ''} 
-                              transition-colors duration-500`}
-                          >
-                            <td className={`sticky left-0 z-10 px-4 py-4 
-                              ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
-                              ${row.id === newRowId ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={row.selected}
-                                onChange={() => toggleRowSelection(row.id)}
-                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                              />
-                            </td>
-                            {row.cells.slice(
-                              activeTab === 0 ? 0 : 
-                              activeTab === 1 ? MENTAL_COLUMNS_START : 
-                              PHYSICAL_COLUMNS_START,
-                              activeTab === 0 ? GENERAL_COLUMNS_END :
-                              activeTab === 1 ? MENTAL_COLUMNS_END :
-                              PHYSICAL_COLUMNS_END
-                            ).map((cell, cellIndex) => {
-                              const isFixedColumn = activeTab === 0 && cellIndex < 3;
-                              const isDateColumn = activeTab === 0 && cellIndex >= getHeadersArray(data.headers).length - 2;
-                              const hasDropdown = activeTab === 0 && cellIndex > 0 && cellIndex < getHeadersArray(data.headers).length - 3;
-                              const dropdownOptions = hasDropdown ? 
-                                Object.values(mockData)[cellIndex - 1] || [] : [];
-                
-                              return (
-                                <td
-                                  key={`${row.id}-${cellIndex}`}
-                                  className={`${isFixedColumn ? `sticky left-${cellIndex === 0 ? '12' : cellIndex === 1 ? '32' : '52'} z-10` : ''} 
-                                    px-6 py-4 
-                                    ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
-                                    ${row.id === newRowId ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}`}
-                                  style={{ width: `${columnWidths[cellIndex]}px` }}
+                          ) : (
+                            // Group header rendering for Mental and Physical Availability tabs
+                            <>
+                              <tr className={isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}>
+                                <th 
+                                  className={`sticky left-0 z-20 px-4 py-3 ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}`}
+                                  style={{ 
+                                    borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                    backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
+                                    position: 'relative',
+                                    padding: '0',
+                                  }}
+                                  rowSpan={2}
                                 >
-                                  {hasDropdown ? (
-                                    <select
-                                      ref={row.id === newRowId && cellIndex === 0 ? (el) => el?.focus() : undefined}
-                                      value={cell}
-                                      onChange={(e) => handleCellChange(row.id, cellIndex, e.target.value)}
-                                      className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
-                                        ${isDarkMode ? 'text-white [&>option]:bg-gray-800' : 'text-gray-900 [&>option]:bg-white'}`}
+                                  <input
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    onChange={toggleSelectAll}
+                                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                  />
+                                </th>
+                                {Object.values(activeTab === 0 ? { general: { title: 'General', columns: data.headers as string[] } } : data.headers as GroupedHeaders).map((group: HeaderGroup) => (
+                                  <th
+                                    key={group.title || 'general'}
+                                    colSpan={Array.isArray(group.columns) ? group.columns.length : 1}
+                                    className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
+                                      text-center border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                                    style={{
+                                      backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
+                                      padding: '0.75rem',
+                                    }}
+                                  >
+                                    {group.title || ''}
+                                  </th>
+                                ))}
+                              </tr>
+                              <tr className={isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}>
+                                {Object.values(data.headers as GroupedHeaders).map((group: HeaderGroup) => 
+                                  (group.columns || []).map((column: string, columnIndex: number) => (
+                                    <th
+                                      key={column}
+                                      className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
+                                        cursor-pointer group relative`}
+                                      style={{ 
+                                        width: `${columnWidths[columnIndex]}px`,
+                                        borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                        backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
+                                        position: 'relative',
+                                        padding: '0.75rem',
+                                      }}
                                     >
-                                      <option value="" className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>Select...</option>
-                                      {dropdownOptions.map((option: string, optIndex: number) => (
-                                        <option 
-                                          key={`${row.id}-${cellIndex}-${optIndex}`} 
-                                          value={option}
-                                          className={isDarkMode ? 'bg-gray-800' : 'bg-white'}
+                                      <div className="flex items-center gap-2">
+                                        <span onClick={() => handleSort(columnIndex, group)}>{column}</span>
+                                        {sortConfig?.column === getActualColumnIndex(columnIndex, group) && (
+                                          <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                                        )}
+                                        <button
+                                          className="opacity-50 hover:opacity-100"
+                                          onClick={() => handleSearch(columnIndex, group)}
                                         >
-                                          {option}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  ) : (
-                                    <input
-                                      ref={row.id === newRowId && cellIndex === 0 ? (el) => el?.focus() : undefined}
-                                      type={isDateColumn ? 'date' : 'text'}
-                                      value={cell}
-                                      onChange={(e) => handleCellChange(row.id, cellIndex, e.target.value)}
-                                      className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
-                                        ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                                    />
-                                  )}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </motion.div>
-                </AnimatePresence>
+                                          <Search size={16} />
+                                        </button>
+                                      </div>
+                                      {searchColumn === getActualColumnIndex(columnIndex, group) && (
+                                        <input
+                                          type="text"
+                                          value={searchTerm}
+                                          onChange={(e) => setSearchTerm(e.target.value)}
+                                          className={`mt-2 w-full px-2 py-1 rounded-md 
+                                            ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'}`}
+                                          onClick={(e) => e.stopPropagation()}
+                                        />
+                                      )}
+                                      <div
+                                        className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
+                                        onMouseDown={(e) => startResizing(columnIndex, e, group)}
+                                        style={{
+                                          transform: 'translateX(1px)',
+                                        }}
+                                      />
+                                    </th>
+                                  ))
+                                )}
+                              </tr>
+                            </>
+                          )}
+                        </thead>
+                        <tbody>
+                          {filteredRows.map((row) => (
+                            <tr 
+                              key={row.id} 
+                              className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}
+                                ${row.id === newRowId ? 'bg-blue-50 dark:bg-blue-900/30' : ''} 
+                                transition-colors duration-500`}
+                            >
+                              <td className={`sticky left-0 z-10 px-4 py-4 
+                                ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
+                                ${row.id === newRowId ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={row.selected}
+                                  onChange={() => toggleRowSelection(row.id)}
+                                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                />
+                              </td>
+                              {row.cells.slice(
+                                activeTab === 0 ? 0 : 
+                                activeTab === 1 ? MENTAL_COLUMNS_START : 
+                                PHYSICAL_COLUMNS_START,
+                                activeTab === 0 ? GENERAL_COLUMNS_END :
+                                activeTab === 1 ? MENTAL_COLUMNS_END :
+                                PHYSICAL_COLUMNS_END
+                              ).map((cell, cellIndex) => {
+                                const isFixedColumn = activeTab === 0 && cellIndex < 3;
+                                const isDateColumn = activeTab === 0 && cellIndex >= getHeadersArray(data.headers).length - 2;
+                                const hasDropdown = activeTab === 0 && cellIndex > 0 && cellIndex < getHeadersArray(data.headers).length - 3;
+                                const dropdownOptions = hasDropdown ? 
+                                  Object.values(mockData)[cellIndex - 1] || [] : [];
+                
+                                return (
+                                  <td
+                                    key={`${row.id}-${cellIndex}`}
+                                    className={`${isFixedColumn ? `sticky left-${cellIndex === 0 ? '12' : cellIndex === 1 ? '32' : '52'} z-10` : ''} 
+                                      px-6 py-4 
+                                      ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
+                                      ${row.id === newRowId ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}`}
+                                    style={{ width: `${columnWidths[cellIndex]}px` }}
+                                  >
+                                    {hasDropdown ? (
+                                      <select
+                                        ref={row.id === newRowId && cellIndex === 0 ? (el) => el?.focus() : undefined}
+                                        value={cell}
+                                        onChange={(e) => handleCellChange(row.id, cellIndex, e.target.value)}
+                                        className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
+                                          ${isDarkMode ? 'text-white [&>option]:bg-gray-800' : 'text-gray-900 [&>option]:bg-white'}`}
+                                      >
+                                        <option value="" className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>Select...</option>
+                                        {dropdownOptions.map((option: string, optIndex: number) => (
+                                          <option 
+                                            key={`${row.id}-${cellIndex}-${optIndex}`} 
+                                            value={option}
+                                            className={isDarkMode ? 'bg-gray-800' : 'bg-white'}
+                                          >
+                                            {option}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    ) : (
+                                      <input
+                                        ref={row.id === newRowId && cellIndex === 0 ? (el) => el?.focus() : undefined}
+                                        type={isDateColumn ? 'date' : 'text'}
+                                        value={cell}
+                                        onChange={(e) => handleCellChange(row.id, cellIndex, e.target.value)}
+                                        className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
+                                          ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                      />
+                                    )}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   } 
