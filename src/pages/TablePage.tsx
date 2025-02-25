@@ -438,7 +438,7 @@ export default function TablePage() {
       ...Object.values(mentalAvailabilityHeaders).flatMap(group => group.columns),
       ...Object.values(physicalAvailabilityHeaders).flatMap(group => group.columns)
     ];
-  };
+    };
   
     return (
       <div className={`overflow-hidden min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
@@ -969,7 +969,10 @@ export default function TablePage() {
                             return (
                               <td
                           key={`${row.id}-${index}`}
-                          className={`px-6 py-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
+                          className={`px-6 py-4 
+                            ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}
+                            ${row.id === newRowId ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}
+                            border-x ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                           style={{ width: `${columnWidths[index]}px` }}
                               >
                                 {hasDropdown ? (
