@@ -24,13 +24,32 @@ interface GroupedHeaders {
 const calculateTextWidth = (text: string): number => {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  if (!context) return 120;
+  if (!context) return 150;
   
   context.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
   const metrics = context.measureText(text);
   
-  return Math.ceil(metrics.width) + 64; // Base width plus padding
+  return Math.ceil(metrics.width) + 100;
 };
+
+// Clean up the resizingStyles constant
+const resizingStyles = `
+  .resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 10;
+    background-color: transparent;
+  }
+  
+  .resize-handle:hover,
+  .resize-handle:active {
+    background-color: rgba(59, 130, 246, 0.5);
+  }
+`;
 
 export default function TablePage() {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -95,7 +114,6 @@ export default function TablePage() {
     const [sortConfig, setSortConfig] = useState<{ column: number; direction: SortDirection } | null>(null);
     const [searchColumn, setSearchColumn] = useState<number | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [resizing, setResizing] = useState<{ index: number; startX: number } | null>(null);
 
   const GENERAL_COLUMNS_END = 17;  // Last index of General tab columns
   const MENTAL_COLUMNS_START = GENERAL_COLUMNS_END;
@@ -129,7 +147,8 @@ export default function TablePage() {
   
     const calculateInitialColumnWidths = useCallback(() => {
     const headers = getHeadersArray(data.headers);
-    const widths = Array(headers.length).fill(100);
+    // Start with a larger minimum width for all columns
+    const widths = Array(headers.length).fill(200);
       
       // Check header widths
     headers.forEach((header, index) => {
@@ -137,50 +156,98 @@ export default function TablePage() {
         widths[index] = Math.max(widths[index], headerWidth);
       });
       
-      // Check all row content widths
+      // Check all row content widths with extra padding
       data.rows.forEach(row => {
         row.cells.forEach((cell, index) => {
           if (cell) { // Only check non-empty cells
-            const cellWidth = calculateTextWidth(cell);
-          widths[index] = Math.max(widths[index], cellWidth);
+            const cellWidth = calculateTextWidth(cell) + 40; // Add extra padding for cell content
+            widths[index] = Math.max(widths[index], cellWidth);
           }
         });
       });
   
-    // Check dropdown options widths (only for General tab)
-    if (activeTab === 0) {
-      Object.values(mockData).forEach((options, index) => {
-        if (Array.isArray(options)) {
-          options.forEach(option => {
-            const columnIndex = index + 1;
-            if (columnIndex < headers.length - 2) {
-              const optionWidth = calculateTextWidth(option);
-              widths[columnIndex] = Math.max(widths[columnIndex], optionWidth);
-            }
-          });
-        }
-      });
-    }
+    // Special handling for known columns that need more space
+    const specialColumns: Record<string, number> = {
+      'SQUAD': 250,
+      'Franchise': 250,
+      'Brand Family': 250,
+      'Brand': 250,
+      'Customer': 250,
+      'Activation': 250,
+      'Activation Type': 250
+    };
+    
+    // Apply special column widths
+    headers.forEach((header, index) => {
+      if (specialColumns[header as keyof typeof specialColumns]) {
+        widths[index] = Math.max(widths[index], specialColumns[header as keyof typeof specialColumns]);
+      }
+    });
+  
+    // Check dropdown options widths with extra padding
+    Object.values(mockData).forEach((options, index) => {
+      if (Array.isArray(options)) {
+        options.forEach(option => {
+          const columnIndex = index + 1;
+          if (columnIndex < generalHeaders.length - 2) {
+            const optionWidth = calculateTextWidth(option) + 60; // More extra space for dropdown options
+            widths[columnIndex] = Math.max(widths[columnIndex], optionWidth);
+          }
+        });
+      }
+    });
       
       // Add extra padding and ensure minimum width
       return widths.map((width, index) => {
-      // Add extra space for dropdown columns (only for General tab)
-      const hasDropdown = activeTab === 0 && index > 0 && index < headers.length - 2;
-        const extraPadding = hasDropdown ? 32 : 16; // Increased padding
+      // Add extra space for dropdown columns
+      const hasDropdown = index > 0 && index < generalHeaders.length - 2;
+        const extraPadding = hasDropdown ? 60 : 40; // Increased padding
         
         // Add extra space for first column (checkbox)
         const isFirstColumn = index === 0;
         const firstColumnPadding = isFirstColumn ? 24 : 0;
         
         // Ensure minimum width and add padding
-        return Math.max(120, width + extraPadding + firstColumnPadding);
+        return Math.max(200, width + extraPadding + firstColumnPadding);
       });
-  }, [data.headers, activeTab]);
+  }, [data.headers, data.rows, generalHeaders]);
   
     useEffect(() => {
     const newWidths = calculateInitialColumnWidths();
     setColumnWidths(newWidths);
-  }, [activeTab, calculateInitialColumnWidths]);
+  }, [calculateInitialColumnWidths]);
+
+  // Add this useEffect to recalculate column widths after data is loaded
+  useEffect(() => {
+    // Wait for data to be fully loaded
+    if (data.rows.length > 0) {
+      // Force recalculation of column widths
+      const newWidths = calculateInitialColumnWidths();
+      
+      // Apply minimum widths for specific columns
+      const updatedWidths = [...newWidths];
+      
+      // Set minimum widths for specific columns by name
+      const minColumnWidths: Record<string, number> = {
+        'SQUAD': 300,
+        'Franchise': 300,
+        'Brand Family': 300,
+        'Brand': 300,
+        'Customer': 300,
+        'Activation': 300,
+        'Activation Type': 300
+      };
+      
+      // Apply minimum widths
+      generalHeaders.forEach((header, index) => {
+        if (minColumnWidths[header]) {
+          updatedWidths[index] = Math.max(updatedWidths[index], minColumnWidths[header]);
+        }
+      });
+      
+      setColumnWidths(updatedWidths);
+    }
+  }, [data.rows.length, calculateInitialColumnWidths, generalHeaders]);
 
   const handleCellChange = (rowId: string, cellIndex: number, value: string) => {
     const rowIndex = data.rows.findIndex(row => row.id === rowId);
@@ -338,37 +405,9 @@ export default function TablePage() {
     );
   });
 
-  const startResizing = (index: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    const actualIndex = index;
-    setResizing({ index: actualIndex, startX: e.clientX });
+  const handleLogout = () => {
+    navigate('/login');
   };
-  
-    const stopResizing = useCallback(() => {
-      setResizing(null);
-    }, []);
-  
-    const handleResize = useCallback((e: React.MouseEvent) => {
-      if (!resizing) return;
-  
-      const diff = e.clientX - resizing.startX;
-    if (Math.abs(diff) < 1) return; // Prevent tiny adjustments
-
-    setColumnWidths(prev => {
-      const newWidths = [...prev];
-      newWidths[resizing.index] = Math.max(100, prev[resizing.index] + diff);
-      return newWidths;
-    });
-
-    setResizing(prev => ({
-      ...prev!,
-      startX: e.clientX
-    }));
-  }, [resizing]);
-  
-    const handleLogout = () => {
-      navigate('/login');
-    };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -404,24 +443,93 @@ export default function TablePage() {
   };
 
   useEffect(() => {
+    // Create a more responsive observer with lower threshold and larger margins
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          // Check if the element is at least partially visible
           if (entry.isIntersecting) {
-            if (entry.target === generalRef.current) setActiveTab(0);
-            if (entry.target === mentalRef.current) setActiveTab(1);
-            if (entry.target === physicalRef.current) setActiveTab(2);
+            if (entry.target === generalRef.current) {
+              setActiveTab(0);
+            } else if (entry.target === mentalRef.current) {
+              setActiveTab(1);
+            } else if (entry.target === physicalRef.current) {
+              setActiveTab(2);
+            }
           }
         });
       },
-      { threshold: 0.5 }
+      { 
+        threshold: [0, 0.1, 0.2, 0.3], // Multiple thresholds for better detection
+        rootMargin: "0px 200px 0px 200px" // Larger margins on both sides
+      }
     );
 
+    // Update the scroll handler to remove unused variable
+    const handleScroll = () => {
+      // Get the scroll position
+      const scrollContainer = document.querySelector('.overflow-x-auto');
+      if (!scrollContainer) return;
+      
+      const containerWidth = scrollContainer.clientWidth;
+      
+      // Get positions of section headers relative to the viewport
+      const generalHeader = generalRef.current?.getBoundingClientRect();
+      const mentalHeader = mentalRef.current?.getBoundingClientRect();
+      const physicalHeader = physicalRef.current?.getBoundingClientRect();
+      
+      // Calculate visibility percentages for each section
+      let generalVisibility = 0;
+      let mentalVisibility = 0;
+      let physicalVisibility = 0;
+      
+      if (generalHeader) {
+        const visibleWidth = Math.min(generalHeader.right, containerWidth) - Math.max(generalHeader.left, 0);
+        generalVisibility = Math.max(0, visibleWidth) / generalHeader.width;
+      }
+      
+      if (mentalHeader) {
+        const visibleWidth = Math.min(mentalHeader.right, containerWidth) - Math.max(mentalHeader.left, 0);
+        mentalVisibility = Math.max(0, visibleWidth) / mentalHeader.width;
+      }
+      
+      if (physicalHeader) {
+        const visibleWidth = Math.min(physicalHeader.right, containerWidth) - Math.max(physicalHeader.left, 0);
+        physicalVisibility = Math.max(0, visibleWidth) / physicalHeader.width;
+      }
+      
+      // Set active tab based on which section has the highest visibility percentage
+      if (generalVisibility > 0.1 && generalVisibility >= mentalVisibility && generalVisibility >= physicalVisibility) {
+        setActiveTab(0);
+      } else if (mentalVisibility > 0.1 && mentalVisibility >= generalVisibility && mentalVisibility >= physicalVisibility) {
+        setActiveTab(1);
+      } else if (physicalVisibility > 0.1 && physicalVisibility >= generalVisibility && physicalVisibility >= mentalVisibility) {
+        setActiveTab(2);
+      }
+    };
+    
+    // Add scroll event listener with debounce
+    const scrollContainer = document.querySelector('.overflow-x-auto');
+    if (scrollContainer) {
+      let timeout: number;
+      scrollContainer.addEventListener('scroll', () => {
+        clearTimeout(timeout);
+        timeout = window.setTimeout(handleScroll, 100);
+      });
+    }
+
+    // Observe the section headers
     if (generalRef.current) observer.observe(generalRef.current);
     if (mentalRef.current) observer.observe(mentalRef.current);
     if (physicalRef.current) observer.observe(physicalRef.current);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      const scrollContainer = document.querySelector('.overflow-x-auto');
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
   }, []);
 
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -440,7 +548,157 @@ export default function TablePage() {
     ];
     };
   
-    return (
+    useEffect(() => {
+    // Wait for the DOM to be fully loaded
+    setTimeout(() => {
+      // Get all resize handles
+      const handles = document.querySelectorAll('.resize-handle');
+      
+      // Add event listeners to each handle
+      handles.forEach(handle => {
+        handle.addEventListener('mousedown', onMouseDown);
+      });
+      
+      // Mouse down handler
+      function onMouseDown(e: Event) {
+        e.preventDefault();
+        
+        // Get the parent th element
+        const th = (e.target as HTMLElement).closest('th');
+        if (!th) return;
+        
+        // Get initial width and position
+        const startX = (e as MouseEvent).clientX;
+        const startWidth = th.offsetWidth;
+        
+        // Add resize class to body
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        
+        // Add document-level event listeners
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        
+        // Mouse move handler
+        function onMouseMove(e: MouseEvent) {
+          // Calculate new width
+          const newWidth = startWidth + (e.clientX - startX);
+          if (newWidth < 50) return;
+          
+          // Set the new width directly
+          if (th) {
+            th.style.width = `${newWidth}px`;
+            th.style.minWidth = `${newWidth}px`;
+          }
+        }
+        
+        // Mouse up handler
+        function onMouseUp() {
+          // Remove document-level event listeners
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+          
+          // Reset cursor and selection
+          document.body.style.removeProperty('cursor');
+          document.body.style.removeProperty('user-select');
+        }
+      }
+    }, 500); // Shorter timeout is fine
+  }, []);
+
+  // Clean up the resize handler useEffect
+  useEffect(() => {
+    // Add the resizing styles to the document
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = resizingStyles;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
+  // Update the column width calculation to be more general
+  useEffect(() => {
+    // Wait for the table to be fully rendered
+    setTimeout(() => {
+      // Get all table headers and rows
+      const table = document.querySelector('table');
+      if (!table) return;
+      
+      const headers = table.querySelectorAll('th:not(:first-child)'); // Skip checkbox column
+      const rows = table.querySelectorAll('tbody tr');
+      
+      // For each column
+      headers.forEach((header, index) => {
+        // Skip the first column (checkbox)
+        const columnIndex = index + 1;
+        
+        // Get all cells in this column
+        const cells = Array.from(rows).map(row => 
+          row.querySelector(`td:nth-child(${columnIndex + 1})`)
+        );
+        
+        // Get header text to identify column type
+        const headerText = header.textContent?.trim() || '';
+        
+        // Detect column types by patterns
+        const isPercentage = /reach|percentage|%/i.test(headerText);
+        const isQuantity = /quantity|qty|count|number/i.test(headerText);
+        const isMonetary = /investment|amount|price|cost|value|\$/i.test(headerText);
+        const isNumeric = isPercentage || isQuantity || isMonetary || /^\d+$/.test(headerText);
+        
+        // Set appropriate width based on column type
+        let maxWidth = 0;
+        
+        // Check header width with minimal padding for numeric columns
+        const headerWidth = calculateTextWidth(headerText) + (isNumeric ? 20 : 60);
+        maxWidth = Math.max(maxWidth, headerWidth);
+        
+        // Check cell widths with minimal padding
+        cells.forEach(cell => {
+          if (!cell) return;
+          
+          const input = cell.querySelector('input, select');
+          const cellText = input ? (input as HTMLInputElement).value : cell.textContent || '';
+          
+          // Check if cell content is numeric
+          const isCellNumeric = isNumeric || /^[\d.,%$]+$/.test(cellText.trim());
+          
+          // Use very small padding for numeric/percentage columns
+          const cellWidth = calculateTextWidth(cellText) + (isCellNumeric ? 10 : 40);
+          maxWidth = Math.max(maxWidth, cellWidth);
+        });
+        
+        // Set minimum width based on content type
+        let minWidth = 200; // Default for text columns
+        
+        if (isPercentage) {
+          minWidth = 60; // Smallest for percentages
+        } else if (isQuantity) {
+          minWidth = 80; // Small for quantities
+        } else if (isMonetary) {
+          minWidth = 100; // Medium for monetary values
+        } else if (isNumeric) {
+          minWidth = 80; // Small for other numeric columns
+        }
+        
+        maxWidth = Math.max(maxWidth, minWidth);
+        
+        // Apply width directly to the header and all cells
+        (header as HTMLElement).style.width = `${maxWidth}px`;
+        (header as HTMLElement).style.minWidth = `${maxWidth}px`;
+        
+        cells.forEach(cell => {
+          if (!cell) return;
+          (cell as HTMLElement).style.width = `${maxWidth}px`;
+          (cell as HTMLElement).style.minWidth = `${maxWidth}px`;
+        });
+      });
+    }, 1000);
+  }, [data.rows.length]); // Re-run when rows change
+
+  return (
       <div className={`overflow-hidden min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header - Make it more compact on mobile */}
         <div className="w-full bg-secondary py-2 shadow-md">
@@ -748,11 +1006,7 @@ export default function TablePage() {
                   width: '100%',
               overflowX: 'auto',
               height: 'calc(100vh - 220px)',
-              cursor: resizing ? 'col-resize' : 'auto'
             }}
-            onMouseMove={handleResize}
-            onMouseUp={stopResizing}
-            onMouseLeave={stopResizing}
           >
                   <table style={{ 
                     borderCollapse: 'separate',
@@ -817,40 +1071,36 @@ export default function TablePage() {
                       key={`general-${index}`}
                       className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
                         cursor-pointer group relative px-6 py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}
-                            style={{ 
-                              width: `${columnWidths[index]}px`,
-                              borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                            }}
-                          >
-                              <div className="flex items-center gap-2">
-                                <span onClick={() => handleSort(index)}>{header}</span>
-                                {sortConfig?.column === index && (
-                                  <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                )}
-                                <button
-                                  className="opacity-50 hover:opacity-100"
-                                  onClick={() => handleSearch(index)}
-                                >
-                                  <Search size={16} />
-                                </button>
-                              </div>
-                              {searchColumn === index && (
-                                <input
-                                  type="text"
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                  className={`mt-2 w-full px-2 py-1 rounded-md 
-                                    ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              )}
-                            <div
-                              className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
-                        onMouseDown={(e) => startResizing(index, e)}
-                        style={{ transform: 'translateX(1px)' }}
-                            />
-                          </th>
-                        ))}
+                      style={{ 
+                        width: `${columnWidths[index]}px`,
+                        borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span onClick={() => handleSort(index)}>{header}</span>
+                        {sortConfig?.column === index && (
+                          <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                        <button
+                          className="opacity-50 hover:opacity-100"
+                          onClick={() => handleSearch(index)}
+                        >
+                          <Search size={16} />
+                        </button>
+                      </div>
+                      {searchColumn === index && (
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className={`mt-2 w-full px-2 py-1 rounded-md 
+                            ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'}`}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      )}
+                      <div className="resize-handle" />
+                    </th>
+                  ))}
 
                   {/* Mental Availability columns */}
                   {Object.values(mentalAvailabilityHeaders).flatMap((group, groupIndex) => 
@@ -887,11 +1137,7 @@ export default function TablePage() {
                                   onClick={(e) => e.stopPropagation()}
                                 />
                               )}
-                            <div
-                              className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
-                            onMouseDown={(e) => startResizing(mentalIndex, e)}
-                            style={{ transform: 'translateX(1px)' }}
-                          />
+                          <div className="resize-handle" />
                         </th>
                       );
                     })
@@ -932,12 +1178,8 @@ export default function TablePage() {
                               onClick={(e) => e.stopPropagation()}
                             />
                           )}
-                          <div
-                            className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors"
-                            onMouseDown={(e) => startResizing(physicalIndex, e)}
-                            style={{ transform: 'translateX(1px)' }}
-                            />
-                          </th>
+                          <div className="resize-handle" />
+                        </th>
                       );
                     })
                   )}
