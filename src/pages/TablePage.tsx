@@ -249,24 +249,34 @@ export default function TablePage() {
     }
   }, [data.rows.length, calculateInitialColumnWidths, generalHeaders]);
 
+  // Add new state for tracking edited/focused row
+  const [activeRowId, setActiveRowId] = useState<string | null>(null);
+
+  // Add new handler for row focus/edit
+  const handleRowFocus = (rowId: string) => {
+    setActiveRowId(rowId);
+  };
+
+  // Modify handleCellChange to also set the active row
   const handleCellChange = (rowId: string, cellIndex: number, value: string) => {
+    setActiveRowId(rowId); // Set active row when editing
     const rowIndex = data.rows.findIndex(row => row.id === rowId);
     if (rowIndex === -1) return;
 
-      const newRows = [...data.rows];
+    const newRows = [...data.rows];
     const actualCellIndex = 
       activeTab === 0 ? cellIndex : 
       activeTab === 1 ? MENTAL_COLUMNS_START + cellIndex :
       PHYSICAL_COLUMNS_START + cellIndex;
 
-      newRows[rowIndex] = {
-        ...newRows[rowIndex],
+    newRows[rowIndex] = {
+      ...newRows[rowIndex],
       cells: newRows[rowIndex].cells.map((cell, i) => 
         i === actualCellIndex ? value : cell
       ),
-      };
-      setData({ ...data, rows: newRows });
     };
+    setData({ ...data, rows: newRows });
+  };
   
     const addRow = () => {
     const newRow = generateSingleRow();
@@ -845,6 +855,7 @@ export default function TablePage() {
                   key={row.id}
                   className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-4 first:rounded-t-lg last:rounded-b-lg shadow
                     ${row.id === newRowId ? 'border-2 border-blue-500' : ''}
+                    ${row.id === activeRowId ? 'border-2 border-yellow-500' : ''}
                     ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -876,6 +887,7 @@ export default function TablePage() {
                           <select
                             value={cell}
                             onChange={(e) => handleCellChange(row.id, index, e.target.value)}
+                            onFocus={() => handleRowFocus(row.id)}
                             className={`mt-1 w-full px-3 py-2 rounded-md border ${
                               isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
                             }`}
@@ -890,6 +902,7 @@ export default function TablePage() {
                             type={isDateColumn ? 'date' : 'text'}
                             value={cell}
                             onChange={(e) => handleCellChange(row.id, index, e.target.value)}
+                            onFocus={() => handleRowFocus(row.id)}
                             className={`mt-1 w-full px-3 py-2 rounded-md border ${
                               isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
                             }`}
@@ -1190,11 +1203,11 @@ export default function TablePage() {
                   <tr 
                     key={row.id}
                     className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}
-                      ${row.id === newRowId ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
+                      ${(row.id === newRowId || row.id === activeRowId) ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
                   >
                     <td className={`sticky left-0 z-10 px-4 py-4 
                       ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
-                      ${row.id === newRowId ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}`}
+                      ${(row.id === newRowId || row.id === activeRowId) ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}`}
                     >
                             <input
                               type="checkbox"
@@ -1213,7 +1226,7 @@ export default function TablePage() {
                           key={`${row.id}-${index}`}
                           className={`px-6 py-4 
                             ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}
-                            ${row.id === newRowId ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}
+                            ${(row.id === newRowId || row.id === activeRowId) ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}
                             border-x ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                           style={{ width: `${columnWidths[index]}px` }}
                               >
@@ -1221,6 +1234,7 @@ export default function TablePage() {
                                   <select
                                     value={cell}
                               onChange={(e) => handleCellChange(row.id, index, e.target.value)}
+                                    onFocus={() => handleRowFocus(row.id)}
                                     className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
                                 ${isDarkMode ? 'text-white [&>option]:bg-gray-800' : 'text-gray-900 [&>option]:bg-white'}`}
                                   >
@@ -1234,6 +1248,7 @@ export default function TablePage() {
                                     type={isDateColumn ? 'date' : 'text'}
                                     value={cell}
                               onChange={(e) => handleCellChange(row.id, index, e.target.value)}
+                                    onFocus={() => handleRowFocus(row.id)}
                                     className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
                                       ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                                   />
