@@ -1027,10 +1027,10 @@ export default function TablePage() {
                     position: 'relative'
                   }}>
                     <thead>
-                      <tr className={isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}>
+                      <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
                   {/* Checkbox column */}
                         <th 
-                          className={`sticky left-0 z-20 px-4 py-3 ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}`}
+                          className={`sticky left-0 z-20 px-4 py-3 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
                     rowSpan={2}
                         >
                           <input
@@ -1046,7 +1046,11 @@ export default function TablePage() {
                   <th 
                     ref={generalRef}
                     colSpan={17} 
-                    className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} text-center`}
+                    className={`${
+                      isDarkMode 
+                        ? 'bg-indigo-900/70 text-white' 
+                        : 'bg-indigo-100 text-gray-900'
+                    } text-center`}
                   >
                     General
                   </th>
@@ -1057,7 +1061,11 @@ export default function TablePage() {
                       key={group.title}
                       ref={group.title === 'Media' ? mentalRef : undefined}
                       colSpan={group.columns.length}
-                      className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} text-center`}
+                      className={`${
+                        isDarkMode 
+                          ? 'bg-emerald-900/70 text-white' 
+                          : 'bg-emerald-100 text-gray-900'
+                      } text-center`}
                     >
                       {group.title}
                     </th>
@@ -1069,7 +1077,11 @@ export default function TablePage() {
                       key={group.title}
                       ref={group.title === 'Displays' ? physicalRef : undefined}
                       colSpan={group.columns.length}
-                      className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} text-center`}
+                      className={`${
+                        isDarkMode 
+                          ? 'bg-amber-900/70 text-white' 
+                          : 'bg-amber-100 text-gray-900'
+                      } text-center`}
                     >
                       {group.title}
                     </th>
@@ -1077,13 +1089,18 @@ export default function TablePage() {
                 </tr>
 
                 {/* Column headers */}
-                <tr className={`${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'} border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
+                <tr className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
                   {/* General headers */}
                   {generalHeaders.map((header, index) => (
                     <th
                       key={`general-${index}`}
-                      className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
-                        cursor-pointer group relative px-6 py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}
+                      className={`${
+                        isDarkMode 
+                          ? 'bg-indigo-900/70 text-white' 
+                          : 'bg-indigo-100 text-gray-900'
+                      } cursor-pointer group relative px-6 py-3 border-t ${
+                        isDarkMode ? 'border-gray-700' : 'border-gray-300'
+                      }`}
                       style={{ 
                         width: `${columnWidths[index]}px`,
                         borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
@@ -1120,36 +1137,42 @@ export default function TablePage() {
                     group.columns.map((column, columnIndex) => {
                       const mentalIndex = GENERAL_COLUMNS_END + groupIndex * group.columns.length + columnIndex;
                       return (
-                        <th key={`mental-${column}`}
-                            className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
-                            cursor-pointer group relative px-6 py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}
-                            style={{ 
+                        <th
+                          key={`mental-${column}`}
+                          className={`${
+                            isDarkMode 
+                              ? 'bg-emerald-900/70 text-white' 
+                              : 'bg-emerald-100 text-gray-900'
+                          } cursor-pointer group relative px-6 py-3 border-t ${
+                            isDarkMode ? 'border-gray-700' : 'border-gray-300'
+                          }`}
+                          style={{ 
                             width: `${columnWidths[mentalIndex]}px`,
-                              borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                            }}
-                          >
-                              <div className="flex items-center gap-2">
+                            borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
                             <span onClick={() => handleSort(mentalIndex)}>{column}</span>
                             {sortConfig?.column === mentalIndex && (
-                                  <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                )}
-                                <button
-                                  className="opacity-50 hover:opacity-100"
+                              <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                            )}
+                            <button
+                              className="opacity-50 hover:opacity-100"
                               onClick={() => handleSearch(mentalIndex)}
-                                >
-                                  <Search size={16} />
-                                </button>
-                              </div>
+                            >
+                              <Search size={16} />
+                            </button>
+                          </div>
                           {searchColumn === mentalIndex && searchTerm && (
-                                <input
-                                  type="text"
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                  className={`mt-2 w-full px-2 py-1 rounded-md 
-                                    ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              )}
+                            <input
+                              type="text"
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className={`mt-2 w-full px-2 py-1 rounded-md 
+                                ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'}`}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          )}
                           <div className="resize-handle" />
                         </th>
                       );
@@ -1161,10 +1184,16 @@ export default function TablePage() {
                     group.columns.map((column, columnIndex) => {
                       const physicalIndex = PHYSICAL_COLUMNS_START + groupIndex * group.columns.length + columnIndex;
                       return (
-                        <th key={`physical-${column}`}
-                          className={`${isDarkMode ? 'bg-indigo-900 text-white' : 'bg-indigo-100 text-gray-900'} 
-                            cursor-pointer group relative px-6 py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}
-                              style={{
+                        <th
+                          key={`physical-${column}`}
+                          className={`${
+                            isDarkMode 
+                              ? 'bg-amber-900/70 text-white' 
+                              : 'bg-amber-100 text-gray-900'
+                          } cursor-pointer group relative px-6 py-3 border-t ${
+                            isDarkMode ? 'border-gray-700' : 'border-gray-300'
+                          }`}
+                          style={{ 
                             width: `${columnWidths[physicalIndex]}px`,
                             borderRight: `2px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
                           }}
