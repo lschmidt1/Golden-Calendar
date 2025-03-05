@@ -946,7 +946,7 @@ export default function TablePage() {
                   disabled={!sortConfig && !searchTerm}
                 />
                 <MuiButton
-                  label="Dark Mode"
+                  label={isDarkMode ? "Light Mode": "Dark Mode"}
                       onClick={toggleDarkMode}
                       startIcon={isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
                       color="secondary"
@@ -1203,11 +1203,15 @@ export default function TablePage() {
                   <tr 
                     key={row.id}
                     className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}
-                      ${(row.id === newRowId || row.id === activeRowId) ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
+                      ${(row.id === newRowId || row.id === activeRowId) ? 
+                        isDarkMode ? 'bg-blue-900/30 text-gray-100' : 'bg-blue-50' 
+                      : ''}`}
                   >
                     <td className={`sticky left-0 z-10 px-4 py-4 
                       ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
-                      ${(row.id === newRowId || row.id === activeRowId) ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}`}
+                      ${(row.id === newRowId || row.id === activeRowId) ? 
+                        isDarkMode ? '!bg-blue-900/30 !text-gray-100' : '!bg-blue-50' 
+                      : ''}`}
                     >
                             <input
                               type="checkbox"
@@ -1226,7 +1230,9 @@ export default function TablePage() {
                           key={`${row.id}-${index}`}
                           className={`px-6 py-4 
                             ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}
-                            ${(row.id === newRowId || row.id === activeRowId) ? '!bg-blue-50 dark:!bg-blue-900/30' : ''}
+                            ${(row.id === newRowId || row.id === activeRowId) ? 
+                              isDarkMode ? '!bg-blue-900/30 !text-gray-100' : '!bg-blue-50' 
+                            : ''}
                             border-x ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
                           style={{ width: `${columnWidths[index]}px` }}
                               >
@@ -1236,7 +1242,9 @@ export default function TablePage() {
                               onChange={(e) => handleCellChange(row.id, index, e.target.value)}
                                     onFocus={() => handleRowFocus(row.id)}
                                     className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
-                                ${isDarkMode ? 'text-white [&>option]:bg-gray-800' : 'text-gray-900 [&>option]:bg-white'}`}
+                                ${isDarkMode ? 
+                                  (row.id === newRowId || row.id === activeRowId) ? 'text-gray-100 [&>option]:bg-gray-800' : 'text-white [&>option]:bg-gray-800' 
+                                  : 'text-gray-900 [&>option]:bg-white'}`}
                                   >
                                     <option value="">Select...</option>
                                     {dropdownOptions.map((option: string) => (
@@ -1250,7 +1258,9 @@ export default function TablePage() {
                               onChange={(e) => handleCellChange(row.id, index, e.target.value)}
                                     onFocus={() => handleRowFocus(row.id)}
                                     className={`w-full border-0 bg-transparent focus:ring-2 focus:ring-blue-500 rounded-md
-                                      ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                      ${isDarkMode ? 
+                                        (row.id === newRowId || row.id === activeRowId) ? 'text-gray-100' : 'text-white' 
+                                        : 'text-gray-900'}`}
                                   />
                                 )}
                               </td>
